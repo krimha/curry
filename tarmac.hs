@@ -2,6 +2,7 @@ import System.Environment
 
 dispatch :: [(String, [String] -> IO ())]
 dispatch = [ ("list", list)
+           , ("add", add)
            ]
 
 
@@ -21,4 +22,8 @@ list [] = do
   let tasks = lines fileContent
       numberedTasks = zipWith (\n t -> (show n) ++ " - " ++ t) [1..] tasks
   putStr $ unlines numberedTasks
+
+
+add :: [String] -> IO ()
+add [task] = appendFile fileName (task ++ "\n")
 
