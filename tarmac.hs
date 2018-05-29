@@ -1,8 +1,12 @@
 import System.Environment
+import System.Directory
+import System.IO
+import Data.List
 
 dispatch :: [(String, [String] -> IO ())]
 dispatch = [ ("list", list)
            , ("add", add)
+           , ("remove", remove)
            ]
 
 
@@ -26,4 +30,19 @@ list [] = do
 
 add :: [String] -> IO ()
 add [task] = appendFile fileName (task ++ "\n")
+
+
+remove :: [String] -> IO ()
+remove [numberString] = do
+  handle <- openFile fileName ReadMode
+  (tempName, tempHandle) <- openTempFile "." "temp"
+  fileContents <- hGetContents handle
+  let taskNumber = read numberString
+      tasks = lines fileContents
+      updatedTasks = delete (tasks !! (taskNumber-1)) tasks
+  hPutStr tempHandle $ unlines updatedTasks
+  hClose handle
+  hClose tempHandle
+  removeFile fileName
+  renameFile tempName fileName
 
