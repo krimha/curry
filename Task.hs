@@ -1,3 +1,6 @@
+
+module Task (tasks) where
+
 import Text.ParserCombinators.Parsec
 
 data Task = Task {
