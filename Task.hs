@@ -1,5 +1,5 @@
 
-module Task (tasks) where
+module Task (tasks, Task) where
 
 import Text.ParserCombinators.Parsec
 

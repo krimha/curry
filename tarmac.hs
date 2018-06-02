@@ -2,6 +2,9 @@ import System.Environment
 import System.Directory
 import System.IO
 import Data.List
+import Text.ParserCombinators.Parsec
+import Task (Task, tasks)
+import Data.Either
 
 dispatch :: [(String, [String] -> IO ())]
 dispatch = [ ("list", list)
@@ -22,10 +25,9 @@ main = do
 
 list :: [String] -> IO ()
 list [] = do
-  fileContent <- readFile fileName
-  let tasks = lines fileContent
-      numberedTasks = zipWith (\n t -> (show n) ++ " - " ++ t) [1..] tasks
-  putStr $ unlines numberedTasks
+  result <- parseFromFile tasks fileName
+  case result of
+    Right ts -> sequence_ $ map (putStrLn . show) ts
 
 
 add :: [String] -> IO ()
@@ -45,4 +47,3 @@ remove [numberString] = do
   hClose tempHandle
   removeFile fileName
   renameFile tempName fileName
-
