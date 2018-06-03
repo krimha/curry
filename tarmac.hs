@@ -27,7 +27,9 @@ list :: [String] -> IO ()
 list [] = do
   result <- parseFromFile tasks fileName
   case result of
-    Right ts -> sequence_ $ map (putStrLn . show) ts
+    Right ts -> sequence_ $ map putStr taskStr
+      where
+        taskStr = zipWith (\n t -> (show n) ++ " - " ++ (show t)) [1..] ts
 
 
 add :: [String] -> IO ()

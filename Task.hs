@@ -8,7 +8,10 @@ data Task = Task {
                  }
 
 instance Show Task where
-  show task = text task
+  show task = unlines
+    [ "TASK " ++ text task ]
+
+
 
 tasks :: Parser [Task]
 tasks =
