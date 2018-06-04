@@ -1,5 +1,5 @@
 
-module Task (tasks, Task) where
+module Task (tasks, Task, serialize) where
 
 import Text.ParserCombinators.Parsec
 
@@ -9,7 +9,14 @@ data Task = Task {
 
 instance Show Task where
   show task = unlines
-    [ "TASK " ++ text task ]
+    [ text task ]
+
+instance Eq Task where
+  a == b = text a == text b
+
+
+serialize :: Task -> String
+serialize task = "TASK " ++ (text task) ++ "\n"
 
 
 

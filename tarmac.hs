@@ -1,10 +1,11 @@
 import System.Environment
 import System.Directory
-import System.IO
+import System.IO 
 import Data.List
 import Text.ParserCombinators.Parsec
-import Task (Task, tasks)
+import Task (Task, tasks, serialize)
 import Data.Either
+import Control.Monad.Trans
 
 dispatch :: [(String, [String] -> IO ())]
 dispatch = [ ("list", list)
@@ -35,17 +36,16 @@ list [] = do
 add :: [String] -> IO ()
 add [task] = appendFile fileName (task ++ "\n")
 
-
 remove :: [String] -> IO ()
 remove [numberString] = do
-  handle <- openFile fileName ReadMode
-  (tempName, tempHandle) <- openTempFile "." "temp"
-  fileContents <- hGetContents handle
-  let taskNumber = read numberString
-      tasks = lines fileContents
-      updatedTasks = delete (tasks !! (taskNumber-1)) tasks
-  hPutStr tempHandle $ unlines updatedTasks
-  hClose handle
-  hClose tempHandle
+  result <- parseFromFile tasks fileName
+  let taskNumber = read numberString :: Int
+      upDated = case result of
+                  Left e -> [] -- TODO: Alert error
+                  Right ts -> if and [taskNumber > 0, taskNumber <= length ts]
+                    then delete (ts !! (taskNumber-1)) ts else ts
+  (tempName, tempHandler) <- openTempFile "." "temp"
+  hPutStr tempHandler $ unlines (map serialize upDated)
+  hClose tempHandler
   removeFile fileName
   renameFile tempName fileName
