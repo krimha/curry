@@ -28,15 +28,18 @@ tasks =
 
 task :: Parser Task
 task =
-  do spaces
-     string "TASK"
-     spaces
-     result <- line
-     eol
+  do result <- keywordLine "TASK"
      return Task { tText=result }
 
-line :: Parser String
-line = many (noneOf "\n")
+keywordLine :: String -> Parser String
+keywordLine s =
+  do many eol
+     spaces
+     string s
+     spaces
+     result <- many (noneOf "\n")
+     many eol
+     return result
 
 eol :: Parser Char
 eol = char '\n'
