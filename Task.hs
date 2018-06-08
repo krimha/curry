@@ -1,22 +1,22 @@
 
-module Task (tasks, Task, serialize) where
+module Task  where
 
 import Text.ParserCombinators.Parsec
 
 data Task = Task {
-  text :: String
+  tText :: String
                  }
 
 instance Show Task where
   show task = unlines
-    [ text task ]
+    [ tText task ]
 
 instance Eq Task where
-  a == b = text a == text b
+  a == b = tText a == tText b
 
 
 serialize :: Task -> String
-serialize task = "TASK " ++ (text task) ++ "\n"
+serialize task = "TASK " ++ (tText task) ++ "\n"
 
 
 
@@ -33,7 +33,7 @@ task =
      spaces
      result <- line
      eol
-     return Task { text=result }
+     return Task { tText=result }
 
 line :: Parser String
 line = many (noneOf "\n")

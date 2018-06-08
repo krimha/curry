@@ -3,7 +3,7 @@ import System.Directory
 import System.IO 
 import Data.List
 import Text.ParserCombinators.Parsec
-import Task (Task, tasks, serialize)
+import Task 
 import Data.Either
 import Control.Monad.Trans
 
@@ -28,13 +28,14 @@ list :: [String] -> IO ()
 list [] = do
   result <- parseFromFile tasks fileName
   case result of
+    Left err -> putStrLn $ show err
     Right ts -> sequence_ $ map putStr taskStr
       where
         taskStr = zipWith (\n t -> (show n) ++ " - " ++ (show t)) [1..] ts
 
 
 add :: [String] -> IO ()
-add [task] = appendFile fileName (task ++ "\n")
+add [taskText] = appendFile fileName $ serialize (Task { tText=taskText })
 
 remove :: [String] -> IO ()
 remove [numberString] = do
@@ -45,7 +46,7 @@ remove [numberString] = do
                   Right ts -> if and [taskNumber > 0, taskNumber <= length ts]
                     then delete (ts !! (taskNumber-1)) ts else ts
   (tempName, tempHandler) <- openTempFile "." "temp"
-  hPutStr tempHandler $ unlines (map serialize upDated)
+  hPutStr tempHandler $ concat (map serialize upDated)
   hClose tempHandler
   removeFile fileName
   renameFile tempName fileName
