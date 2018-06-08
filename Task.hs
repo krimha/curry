@@ -28,9 +28,11 @@ tasks =
 
 task :: Parser Task
 task =
-  do result <- keywordLine "TASK"
-     return Task { tText=result }
+  do text <- keywordLine "TASK"
+     return Task { tText=text }
 
+-- Parses a line on the form `prefix content`, with arbitrary
+-- whitespace in front of and after both the line, and the keyword
 keywordLine :: String -> Parser String
 keywordLine s =
   do many eol
@@ -43,6 +45,3 @@ keywordLine s =
 
 eol :: Parser Char
 eol = char '\n'
-
-
-
