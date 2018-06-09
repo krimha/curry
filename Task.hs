@@ -24,7 +24,11 @@ instance Eq Task where
 
 
 serialize :: Task -> String
-serialize t = (unlines . map (\(k, f) -> k ++ " " ++ f t)) fields
+serialize t = (unlines . map
+               (\(k, f) -> let res = f t in
+                             if res /= "" then
+                               k ++ " " ++ res
+                             else "")) fields
 
 
 tasks :: Parser [Task]
@@ -51,7 +55,7 @@ keywordLine s =
      spaces
      string s
      spaces
-     result <- many (noneOf "\n")
+     result <- many1 (noneOf "\n")
      many eol
      return result
 
