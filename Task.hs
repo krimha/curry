@@ -24,7 +24,7 @@ instance Eq Task where
 
 
 serialize :: Task -> String
-serialize t = (unlines . map
+serialize t = (unlines . filter (/="") . map
                (\(k, f) -> let res = f t in
                              if res /= "" then
                                k ++ " " ++ res
