@@ -11,6 +11,7 @@ dispatch :: [(String, [String] -> IO ())]
 dispatch = [ ("list", list)
            , ("add", add)
            , ("remove", remove)
+           , ("update", update)
            ]
 
 
@@ -54,3 +55,31 @@ remove [numberString] = do
   hClose tempHandler
   removeFile fileName
   renameFile tempName fileName
+
+getTasks = do
+  fileName <- curryEnv
+  result <- parseFromFile tasks fileName 
+  let tasks = case result of
+                Left e -> [] -- TODO: Alert error
+                Right ts -> ts
+  return tasks
+
+writeTasks ts = do
+  fileName <- curryEnv
+  (tempName, tempHandler) <- openTempFile "." "temp"
+  hPutStr tempHandler $ concat (map serialize ts)
+  hClose tempHandler
+  removeFile fileName
+  renameFile tempName fileName
+
+update :: [String] -> IO ()
+update [numberString,field,newValue] = do
+  tasks <- getTasks
+  let taskNumber = read numberString :: Int
+      (firstPart,t:secondPart) = splitAt (taskNumber-1) tasks
+      updatedTask = case field of
+                      "text"     -> t { tText     = newValue }
+                      "deadline" -> t { tDeadline = newValue }
+                      "schedule" -> t { tSchedule = newValue }
+      updatedTasks = firstPart ++ updatedTask:secondPart
+  writeTasks updatedTasks
