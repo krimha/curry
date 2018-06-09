@@ -1,4 +1,3 @@
-
 module Task  where
 
 import Data.List
@@ -11,6 +10,7 @@ data Task = Task {
   , tSchedule :: String
                  }
 
+fields :: [(String, Task->String)]
 fields = [ ("TASK", tText)
          , ("DEADLINE", tDeadline)
          , ("SCHEDULE", tSchedule)
@@ -27,12 +27,12 @@ serialize :: Task -> String
 serialize t = (unlines . map (\(k, f) -> k ++ " " ++ f t)) fields
 
 
-
 tasks :: Parser [Task]
 tasks =
   do result <- many task
      eof
      return result
+
 
 task :: Parser Task
 task = do t <- keywordLine "TASK"
@@ -41,7 +41,6 @@ task = do t <- keywordLine "TASK"
                    (tuple <$?> ("", keywordLine "DEADLINE")
                           <|?> ("", keywordLine "SCHEDULE"))
           return Task { tText=t, tDeadline=d, tSchedule=s}
-
 
 
 -- Parses a line on the form `prefix content`, with arbitrary
@@ -55,6 +54,7 @@ keywordLine s =
      result <- many (noneOf "\n")
      many eol
      return result
+
 
 eol :: Parser Char
 eol = char '\n'
