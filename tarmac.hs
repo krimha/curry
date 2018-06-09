@@ -14,9 +14,8 @@ dispatch = [ ("list", list)
            ]
 
 
--- TODO: Find a more elegant solution
-fileNameIO :: IO String
-fileNameIO = getEnv "CURRY"
+curryEnv :: IO String
+curryEnv = getEnv "CURRY"
 
 
 main = do
@@ -27,7 +26,7 @@ main = do
 
 list :: [String] -> IO ()
 list [] = do
-  fileName <- fileNameIO
+  fileName <- curryEnv
   result <- parseFromFile tasks fileName
   case result of
     Left err -> putStrLn $ show err
@@ -38,12 +37,12 @@ list [] = do
 
 add :: [String] -> IO ()
 add [taskText] = do
-  fileName <- fileNameIO
+  fileName <- curryEnv
   appendFile fileName $ serialize (Task taskText "" "" )
 
 remove :: [String] -> IO ()
 remove [numberString] = do
-  fileName <- fileNameIO
+  fileName <- curryEnv
   result <- parseFromFile tasks fileName
   let taskNumber = read numberString :: Int
       upDated = case result of
