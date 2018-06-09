@@ -11,6 +11,11 @@ data Task = Task {
   , tSchedule :: String
                  }
 
+fields = [ ("TASK", tText)
+         , ("DEADLINE", tDeadline)
+         , ("SCHEDULE", tSchedule)
+         ]
+
 instance Show Task where
   show t = (concat . intersperse " | " . map ($ t)) [tText, tDeadline, tSchedule]
 
@@ -19,7 +24,7 @@ instance Eq Task where
 
 
 serialize :: Task -> String
-serialize task = "TASK " ++ (tText task) ++ "\n"
+serialize t = (unlines . map (\(k, f) -> k ++ " " ++ f t)) fields
 
 
 
