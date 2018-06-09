@@ -1,9 +1,9 @@
 import System.Environment
 import System.Directory
-import System.IO 
+import System.IO
 import Data.List
 import Text.ParserCombinators.Parsec
-import Task 
+import Task
 import Data.Either
 import Control.Monad.Trans
 
@@ -31,11 +31,11 @@ list [] = do
     Left err -> putStrLn $ show err
     Right ts -> sequence_ $ map putStr taskStr
       where
-        taskStr = zipWith (\n t -> (show n) ++ " - " ++ (show t)) [1..] ts
+        taskStr = zipWith (\n t -> (show n) ++ " | " ++ (show t) ++ "\n") [1..] ts
 
 
 add :: [String] -> IO ()
-add [taskText] = appendFile fileName $ serialize (Task { tText=taskText })
+add [taskText] = appendFile fileName $ serialize (Task taskText "" "" )
 
 remove :: [String] -> IO ()
 remove [numberString] = do
