@@ -1,15 +1,18 @@
 
 module Task  where
 
+import Data.List
 import Text.ParserCombinators.Parsec
+import Text.ParserCombinators.Parsec.Perm
 
 data Task = Task {
-  tText :: String
+    tText :: String
+  , tDeadline :: String
+  , tSchedule :: String
                  }
 
 instance Show Task where
-  show task = unlines
-    [ tText task ]
+  show t = (concat . intersperse " | " . map ($ t)) [tText, tDeadline, tSchedule]
 
 instance Eq Task where
   a == b = tText a == tText b
@@ -27,9 +30,14 @@ tasks =
      return result
 
 task :: Parser Task
-task =
-  do text <- keywordLine "TASK"
-     return Task { tText=text }
+task = do t <- keywordLine "TASK"
+          let tuple d s = (d,s)
+          (d,s) <- permute
+                   (tuple <$?> ("", keywordLine "DEADLINE")
+                          <|?> ("", keywordLine "SCHEDULE"))
+          return Task { tText=t, tDeadline=d, tSchedule=s}
+
+
 
 -- Parses a line on the form `prefix content`, with arbitrary
 -- whitespace in front of and after both the line, and the keyword
