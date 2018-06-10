@@ -25,15 +25,23 @@ main = do
   action args
 
 
+pad :: [String] -> [String]
+pad xs = map (\x -> x++(replicate (maxlen-(length x)) ' ')) xs
+  where maxlen = (maximum . map length) xs
+
+pprint :: [Task] -> String
+pprint ts = let
+  columns = transpose $ map (\t -> map ($ t) [tText,tDeadline,tSchedule]) ts
+  padded  = (transpose . map pad) columns
+  in unlines $ map (concat . intersperse " | ") padded
+
 list :: [String] -> IO ()
 list [] = do
   fileName <- curryEnv
   result <- parseFromFile tasks fileName
   case result of
     Left err -> putStrLn $ show err
-    Right ts -> sequence_ $ map putStr taskStr
-      where
-        taskStr = zipWith (\n t -> (show n) ++ " | " ++ (show t) ++ "\n") [1..] ts
+    Right ts -> putStr $ pprint ts
 
 
 add :: [String] -> IO ()
