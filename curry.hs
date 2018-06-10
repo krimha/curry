@@ -20,6 +20,7 @@ dispatch = [ ("list", list)
            , ("add", add)
            , ("remove", remove)
            , ("update", update)
+           , ("help", help)
            ]
 
 
@@ -58,6 +59,14 @@ update [numberString,field,newValue] = do
                       "schedule" -> t { tSchedule = newValue }
       updatedTasks = firstPart ++ updatedTask:secondPart
   writeTasks updatedTasks
+
+help :: [String] -> IO ()
+help _ = putStrLn $ unlines [ "Usage:"
+                            , ""
+                            , "\tcurry list"
+                            , "\tcurry add TEXT"
+                            , "\tcurry remove NUMBER"
+                            , "\tcurry update NUMBER FIELD NEWVAULE" ]
 
 
 curryEnv :: IO String
