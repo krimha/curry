@@ -40,19 +40,12 @@ add [taskText] = do
 
 remove :: [String] -> IO ()
 remove [numberString] = do
-  fileName <- curryEnv
-  result <- parseFromFile tasks fileName
+  ts <- getTasks
   let taskNumber = read numberString :: Int
-      upDated = case result of
-                  Left e -> [] -- TODO: Alert error
-                  Right ts -> if and [taskNumber > 0, taskNumber <= length ts]
-                    then delete (ts !! (taskNumber-1)) ts else ts
-  (tempName, tempHandler) <- openTempFile "." "temp"
-  hPutStr tempHandler $ concat (map serialize upDated)
-  hClose tempHandler
-  removeFile fileName
-  renameFile tempName fileName
-
+      updated = if and [taskNumber > 0, taskNumber <= length ts]
+                    then delete (ts !! (taskNumber-1)) ts
+                else ts
+  writeTasks updated
 
 update :: [String] -> IO ()
 update [numberString,field,newValue] = do
