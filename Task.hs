@@ -10,11 +10,12 @@ data Task = Task {
   , tSchedule :: String
                  }
 
-fields :: [(String, Task->String)]
-fields = [ ("TASK", tText)
-         , ("DEADLINE", tDeadline)
-         , ("SCHEDULE", tSchedule)
-         ]
+
+fields = [tText,tDeadline,tSchedule]
+
+fieldLookup :: [(String, Task->String)]
+fieldLookup = zip ["TASK", "DEADLINE", "SCHEDULE"] fields
+
 
 instance Show Task where
   show t = (concat . intersperse " | " . map ($ t)) [tText, tDeadline, tSchedule]
@@ -28,7 +29,7 @@ serialize t = (unlines . filter (/="") . map
                (\(k, f) -> let res = f t in
                              if res /= "" then
                                k ++ " " ++ res
-                             else "")) fields
+                             else "")) fieldLookup
 
 
 tasks :: Parser [Task]

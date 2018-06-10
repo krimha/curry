@@ -71,12 +71,13 @@ pad xs = map (\x -> x++padding x) xs
 
 
 prettyShow :: [Task] -> String
-prettyShow ts = unlines $ map (concat . intersperse " | ") padded
+prettyShow ts = unlines $ (head finishedRows:separator:tail finishedRows)
   where
     headers = ["ID","TASK","DEADLINE","SCHEDULED"]
-    decoratedRows = headers : zipWith (\t n -> (show n) : map ($ t) [tText,tDeadline,tSchedule]) ts [1..]
+    decoratedRows = headers : zipWith (\t n -> (show n) : map ($ t) fields) ts [1..]
     padded  = (transpose . map pad . transpose) decoratedRows
-
+    separator = (concat . intersperse "-|-" . map (flip replicate '-' . length)) $ head padded
+    finishedRows = map (concat . intersperse " | ") padded
 
 getTasks = do
   fileName <- curryEnv
