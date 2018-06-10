@@ -32,9 +32,9 @@ pad xs = map (\x -> x++(replicate (maxlen-(length x)) ' ')) xs
 prettyShow :: [Task] -> String
 prettyShow ts = unlines $ map (concat . intersperse " | ") padded
   where
-    headers = ["Task","Deadline","Scheduled"]
-    columns = headers : map (\t -> map ($ t) [tText,tDeadline,tSchedule]) ts
-    padded  = (transpose . map pad . transpose) columns
+    headers = ["ID","TASK","DEADLINE","SCHEDULED"]
+    decoratedRows = headers : zipWith (\t n -> (show n) : map ($ t) [tText,tDeadline,tSchedule]) ts [1..]
+    padded  = (transpose . map pad . transpose) decoratedRows
 
 list :: [String] -> IO ()
 list [] = do
