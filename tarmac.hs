@@ -29,8 +29,8 @@ pad :: [String] -> [String]
 pad xs = map (\x -> x++(replicate (maxlen-(length x)) ' ')) xs
   where maxlen = (maximum . map length) xs
 
-pprint :: [Task] -> String
-pprint ts = unlines $ map (concat . intersperse " | ") padded
+prettyShow :: [Task] -> String
+prettyShow ts = unlines $ map (concat . intersperse " | ") padded
   where
     headers = ["Task","Deadline","Scheduled"]
     columns = headers : map (\t -> map ($ t) [tText,tDeadline,tSchedule]) ts
@@ -42,7 +42,7 @@ list [] = do
   result <- parseFromFile tasks fileName
   case result of
     Left err -> putStrLn $ show err
-    Right ts -> putStr $ pprint ts
+    Right ts -> putStr $ prettyShow ts
 
 
 add :: [String] -> IO ()
