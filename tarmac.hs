@@ -32,8 +32,9 @@ pad xs = map (\x -> x++(replicate (maxlen-(length x)) ' ')) xs
 pprint :: [Task] -> String
 pprint ts = unlines $ map (concat . intersperse " | ") padded
   where
-    columns = transpose $ map (\t -> map ($ t) [tText,tDeadline,tSchedule]) ts
-    padded  = (transpose . map pad) columns
+    headers = ["Task","Deadline","Scheduled"]
+    columns = headers : map (\t -> map ($ t) [tText,tDeadline,tSchedule]) ts
+    padded  = (transpose . map pad . transpose) columns
 
 list :: [String] -> IO ()
 list [] = do
