@@ -7,16 +7,6 @@ import Task
 import Data.Either
 import Control.Monad.Trans
 
-dispatch :: [(String, [String] -> IO ())]
-dispatch = [ ("list", list)
-           , ("add", add)
-           , ("remove", remove)
-           , ("update", update)
-           ]
-
-
-curryEnv :: IO String
-curryEnv = getEnv "CURRY"
 
 
 main = do
@@ -25,16 +15,13 @@ main = do
   action args
 
 
-pad :: [String] -> [String]
-pad xs = map (\x -> x++(replicate (maxlen-(length x)) ' ')) xs
-  where maxlen = (maximum . map length) xs
+dispatch :: [(String, [String] -> IO ())]
+dispatch = [ ("list", list)
+           , ("add", add)
+           , ("remove", remove)
+           , ("update", update)
+           ]
 
-prettyShow :: [Task] -> String
-prettyShow ts = unlines $ map (concat . intersperse " | ") padded
-  where
-    headers = ["ID","TASK","DEADLINE","SCHEDULED"]
-    decoratedRows = headers : zipWith (\t n -> (show n) : map ($ t) [tText,tDeadline,tSchedule]) ts [1..]
-    padded  = (transpose . map pad . transpose) decoratedRows
 
 list :: [String] -> IO ()
 list [] = do
@@ -49,6 +36,7 @@ add :: [String] -> IO ()
 add [taskText] = do
   fileName <- curryEnv
   appendFile fileName $ serialize (Task taskText "" "" )
+
 
 remove :: [String] -> IO ()
 remove [numberString] = do
@@ -65,21 +53,6 @@ remove [numberString] = do
   removeFile fileName
   renameFile tempName fileName
 
-getTasks = do
-  fileName <- curryEnv
-  result <- parseFromFile tasks fileName 
-  let tasks = case result of
-                Left e -> [] -- TODO: Alert error
-                Right ts -> ts
-  return tasks
-
-writeTasks ts = do
-  fileName <- curryEnv
-  (tempName, tempHandler) <- openTempFile "." "temp"
-  hPutStr tempHandler $ concat (map serialize ts)
-  hClose tempHandler
-  removeFile fileName
-  renameFile tempName fileName
 
 update :: [String] -> IO ()
 update [numberString,field,newValue] = do
@@ -92,3 +65,39 @@ update [numberString,field,newValue] = do
                       "schedule" -> t { tSchedule = newValue }
       updatedTasks = firstPart ++ updatedTask:secondPart
   writeTasks updatedTasks
+
+
+curryEnv :: IO String
+curryEnv = getEnv "CURRY"
+
+
+pad :: [String] -> [String]
+pad xs = map (\x -> x++padding x) xs
+  where maxlen = (maximum . map length) xs
+        padding x = (replicate (maxlen-(length x)) ' ')
+
+
+prettyShow :: [Task] -> String
+prettyShow ts = unlines $ map (concat . intersperse " | ") padded
+  where
+    headers = ["ID","TASK","DEADLINE","SCHEDULED"]
+    decoratedRows = headers : zipWith (\t n -> (show n) : map ($ t) [tText,tDeadline,tSchedule]) ts [1..]
+    padded  = (transpose . map pad . transpose) decoratedRows
+
+
+getTasks = do
+  fileName <- curryEnv
+  result <- parseFromFile tasks fileName
+  let tasks = case result of
+                Left e -> [] -- TODO: Alert error
+                Right ts -> ts
+  return tasks
+
+
+writeTasks ts = do
+  fileName <- curryEnv
+  (tempName, tempHandler) <- openTempFile "." "temp"
+  hPutStr tempHandler $ concat (map serialize ts)
+  hClose tempHandler
+  removeFile fileName
+  renameFile tempName fileName
